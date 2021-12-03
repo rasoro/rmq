@@ -14,8 +14,8 @@ import (
 func TestConnections(t *testing.T) {
 	flushConn, err := OpenConnection("conns-flush", "tcp", "localhost:6379", 1, nil)
 	assert.NoError(t, err)
-	assert.NoError(t, flushConn.stopHeartbeat())
-	assert.Equal(t, ErrorNotFound, flushConn.stopHeartbeat())
+	assert.NoError(t, flushConn.StopHeartbeat())
+	assert.Equal(t, ErrorNotFound, flushConn.StopHeartbeat())
 	assert.NoError(t, flushConn.flushDb())
 
 	connection, err := OpenConnection("conns-conn", "tcp", "localhost:6379", 1, nil)
@@ -43,22 +43,22 @@ func TestConnections(t *testing.T) {
 	assert.NoError(t, conn1.checkHeartbeat())
 	assert.NoError(t, conn2.checkHeartbeat())
 
-	assert.Equal(t, ErrorNotFound, connection.hijackConnection("nope").stopHeartbeat())
-	assert.NoError(t, conn1.stopHeartbeat())
+	assert.Equal(t, ErrorNotFound, connection.hijackConnection("nope").StopHeartbeat())
+	assert.NoError(t, conn1.StopHeartbeat())
 	assert.Equal(t, ErrorNotFound, conn1.checkHeartbeat())
 	assert.NoError(t, conn2.checkHeartbeat())
 	connections, err = connection.getConnections()
 	assert.NoError(t, err)
 	assert.Len(t, connections, 3)
 
-	assert.NoError(t, conn2.stopHeartbeat())
+	assert.NoError(t, conn2.StopHeartbeat())
 	assert.Equal(t, ErrorNotFound, conn1.checkHeartbeat())
 	assert.Equal(t, ErrorNotFound, conn2.checkHeartbeat())
 	connections, err = connection.getConnections()
 	assert.NoError(t, err)
 	assert.Len(t, connections, 3)
 
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestConnectionQueues(t *testing.T) {
@@ -128,7 +128,7 @@ func TestConnectionQueues(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, queues, 0)
 
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestQueueCommon(t *testing.T) {
@@ -173,7 +173,7 @@ func TestQueueCommon(t *testing.T) {
 	assert.Len(t, consumers, 2)
 
 	<-queue.StopConsuming()
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestConsumerCommon(t *testing.T) {
@@ -263,7 +263,7 @@ func TestConsumerCommon(t *testing.T) {
 
 	<-queue1.StopConsuming()
 	<-queue2.StopConsuming()
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestMulti(t *testing.T) {
@@ -353,7 +353,7 @@ func TestMulti(t *testing.T) {
 	consumer.FinishAll()
 
 	<-queue.StopConsuming()
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestBatch(t *testing.T) {
@@ -557,7 +557,7 @@ func TestStopConsuming_Consumer(t *testing.T) {
 		return readyCount+unackedCount+consumedCount == deliveryCount
 	}, 10*time.Second, 2*time.Millisecond)
 
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestStopConsuming_BatchConsumer(t *testing.T) {
@@ -608,7 +608,7 @@ func TestStopConsuming_BatchConsumer(t *testing.T) {
 		return readyCount+unackedCount+consumedCount == deliveryCount
 	}, 10*time.Second, 2*time.Millisecond)
 
-	assert.NoError(t, connection.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
 }
 
 func TestConnection_StopAllConsuming_CantOpenQueue(t *testing.T) {
@@ -739,5 +739,5 @@ func BenchmarkQueue(b *testing.B) {
 	}
 	fmt.Printf("consumed %d\n", sum)
 
-	assert.NoError(b, connection.stopHeartbeat())
+	assert.NoError(b, connection.StopHeartbeat())
 }

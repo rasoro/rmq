@@ -38,7 +38,7 @@ type Connection interface {
 	// used for stats
 	openQueue(name string) Queue
 	// used in tests
-	stopHeartbeat() error
+	StopHeartbeat() error
 	flushDb() error
 	unlistAllQueues() error
 }
@@ -287,7 +287,7 @@ func (connection *redisConnection) openQueue(name string) Queue {
 
 // stopHeartbeat stops the heartbeat of the connection
 // it does not remove it from the list of connections so it can later be found by the cleaner
-func (connection *redisConnection) stopHeartbeat() error {
+func (connection *redisConnection) StopHeartbeat() error {
 	if connection.heartbeatStop == nil {
 		return ErrorNotFound
 	}

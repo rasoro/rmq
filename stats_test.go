@@ -68,7 +68,7 @@ func TestStats(t *testing.T) {
 	*/
 
 	q2.StopConsuming()
-	assert.NoError(t, connection.stopHeartbeat())
-	assert.NoError(t, conn1.stopHeartbeat())
-	assert.NoError(t, conn2.stopHeartbeat())
+	assert.NoError(t, connection.StopHeartbeat())
+	assert.NoError(t, conn1.StopHeartbeat())
+	assert.NoError(t, conn2.StopHeartbeat())
 }
