@@ -11,7 +11,7 @@ import (
 func TestCleaner(t *testing.T) {
 	flushConn, err := OpenConnection("cleaner-flush", "tcp", "localhost:6379", 1, nil)
 	assert.NoError(t, err)
-	assert.NoError(t, flushConn.stopHeartbeat())
+	assert.NoError(t, flushConn.StopHeartbeat())
 	assert.NoError(t, flushConn.flushDb())
 
 	conn, err := OpenConnection("cleaner-conn1", "tcp", "localhost:6379", 1, nil)
@@ -72,7 +72,7 @@ func TestCleaner(t *testing.T) {
 	assert.Equal(t, "del2", consumer.LastDelivery.Payload())
 
 	queue.StopConsuming()
-	assert.NoError(t, conn.stopHeartbeat())
+	assert.NoError(t, conn.StopHeartbeat())
 	time.Sleep(time.Millisecond)
 
 	conn, err = OpenConnection("cleaner-conn1", "tcp", "localhost:6379", 1, nil)
@@ -119,7 +119,7 @@ func TestCleaner(t *testing.T) {
 	eventuallyReady(t, queue, 5)
 
 	queue.StopConsuming()
-	assert.NoError(t, conn.stopHeartbeat())
+	assert.NoError(t, conn.StopHeartbeat())
 	time.Sleep(time.Millisecond)
 
 	cleanerConn, err := OpenConnection("cleaner-conn", "tcp", "localhost:6379", 1, nil)
@@ -148,11 +148,11 @@ func TestCleaner(t *testing.T) {
 	}, 10*time.Second, 2*time.Millisecond)
 
 	queue.StopConsuming()
-	assert.NoError(t, conn.stopHeartbeat())
+	assert.NoError(t, conn.StopHeartbeat())
 	time.Sleep(time.Millisecond)
 
 	returned, err = cleaner.Clean()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), returned)
-	assert.NoError(t, cleanerConn.stopHeartbeat())
+	assert.NoError(t, cleanerConn.StopHeartbeat())
 }
