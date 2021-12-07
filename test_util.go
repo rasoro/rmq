@@ -10,7 +10,7 @@ import (
 func eventuallyReady(t *testing.T, queue Queue, expectedReady int64) {
 	t.Helper()
 	assert.Eventually(t, func() bool {
-		count, err := queue.readyCount()
+		count, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
@@ -21,7 +21,7 @@ func eventuallyReady(t *testing.T, queue Queue, expectedReady int64) {
 func eventuallyUnacked(t *testing.T, queue Queue, expectedUnacked int64) {
 	t.Helper()
 	assert.Eventually(t, func() bool {
-		count, err := queue.unackedCount()
+		count, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -32,7 +32,7 @@ func eventuallyUnacked(t *testing.T, queue Queue, expectedUnacked int64) {
 func eventuallyRejected(t *testing.T, queue Queue, expectedRejected int64) {
 	t.Helper()
 	assert.Eventually(t, func() bool {
-		count, err := queue.rejectedCount()
+		count, err := queue.RejectedCount()
 		if err != nil {
 			return false
 		}

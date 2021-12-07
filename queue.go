@@ -32,9 +32,9 @@ type Queue interface {
 	// used in cleaner
 	closeInStaleConnection() error
 	// used for stats
-	readyCount() (int64, error)
-	unackedCount() (int64, error)
-	rejectedCount() (int64, error)
+	ReadyCount() (int64, error)
+	UnackedCount() (int64, error)
+	RejectedCount() (int64, error)
 	getConsumers() ([]string, error)
 }
 
@@ -188,7 +188,7 @@ func (queue *redisQueue) consumeBatch() error {
 	}
 
 	// unackedCount == <deliveries in deliveryChan> + <deliveries in Consume()>
-	unackedCount, err := queue.unackedCount()
+	unackedCount, err := queue.UnackedCount()
 	if err != nil {
 		return err
 	}
@@ -505,15 +505,15 @@ func (queue *redisQueue) closeInStaleConnection() error {
 	return nil
 }
 
-func (queue *redisQueue) readyCount() (int64, error) {
+func (queue *redisQueue) ReadyCount() (int64, error) {
 	return queue.redisClient.LLen(queue.readyKey)
 }
 
-func (queue *redisQueue) unackedCount() (int64, error) {
+func (queue *redisQueue) UnackedCount() (int64, error) {
 	return queue.redisClient.LLen(queue.unackedKey)
 }
 
-func (queue *redisQueue) rejectedCount() (int64, error) {
+func (queue *redisQueue) RejectedCount() (int64, error) {
 	return queue.redisClient.LLen(queue.rejectedKey)
 }
 
