@@ -15,6 +15,7 @@ const (
 
 type Queue interface {
 	Publish(payload ...string) error
+	PublishEX(expiration time.Duration, payload ...string) error
 	PublishBytes(payload ...[]byte) error
 	SetPushQueue(pushQueue Queue)
 	StartConsuming(prefetchLimit int64, pollDuration time.Duration) error
@@ -105,6 +106,16 @@ func (queue *redisQueue) String() string {
 // returns how many deliveries are in the queue afterwards
 func (queue *redisQueue) Publish(payload ...string) error {
 	_, err := queue.redisClient.LPush(queue.readyKey, payload...)
+	return err
+}
+
+// PublishEX is the same as Publish, but adding a expiration time to deliveries.
+func (queue *redisQueue) PublishEX(expiration time.Duration, payload ...string) error {
+	_, err := queue.redisClient.LPush(queue.readyKey, payload...)
+	if err != nil {
+		return err
+	}
+	_, err = queue.redisClient.Expire(queue.readyKey, expiration)
 	return err
 }
 

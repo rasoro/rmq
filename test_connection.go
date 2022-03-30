@@ -33,7 +33,7 @@ func (TestConnection) closeStaleConnection() error           { panic(errorNotSup
 func (TestConnection) getConsumingQueues() ([]string, error) { panic(errorNotSupported) }
 func (TestConnection) unlistAllQueues() error                { panic(errorNotSupported) }
 func (TestConnection) openQueue(string) Queue                { panic(errorNotSupported) }
-func (TestConnection) stopHeartbeat() error                  { panic(errorNotSupported) }
+func (TestConnection) StopHeartbeat() error                  { panic(errorNotSupported) }
 func (TestConnection) flushDb() error                        { panic(errorNotSupported) }
 
 // test helpers for test inspection and similar

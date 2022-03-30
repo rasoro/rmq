@@ -53,7 +53,7 @@ func TestStats(t *testing.T) {
 	stats, err = CollectStats([]string{"stats-q1", "stats-q2"}, connection)
 	assert.NoError(t, err)
 
-	for key, _ := range stats.QueueStats {
+	for key := range stats.QueueStats {
 		assert.Regexp(t, "stats.*", key)
 	}
 	/*
