@@ -72,3 +72,7 @@ func (wrapper RedisWrapper) FlushDb() error {
 	// NOTE: using Err() here because Result() string is always "OK"
 	return wrapper.rawClient.FlushDB(unusedContext).Err()
 }
+
+func (wrapper RedisWrapper) Expire(key string, expiration time.Duration) (bool, error) {
+	return wrapper.rawClient.Expire(unusedContext, key, expiration).Result()
+}
