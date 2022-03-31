@@ -41,6 +41,18 @@ func (client *TestRedisClient) Set(key string, value string, expiration time.Dur
 	return nil
 }
 
+// Expire set timeout on key. After the timeout has expired, the key should be automatically be deleted.
+func (client *TestRedisClient) Expire(key string, expiration time.Duration) (bool, error) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	client.ttl.Delete(key)
+	if expiration.Seconds() != 0.0 {
+		client.ttl.Store(key, time.Now().Add(expiration).Unix())
+	}
+	return true, nil
+}
+
 // Get the value of key.
 // If the key does not exist or isn't a string
 // the special value nil is returned.

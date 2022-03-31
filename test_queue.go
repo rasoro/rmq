@@ -48,6 +48,9 @@ func (*TestQueue) readyCount() (int64, error)          { panic(errorNotSupported
 func (*TestQueue) unackedCount() (int64, error)        { panic(errorNotSupported) }
 func (*TestQueue) rejectedCount() (int64, error)       { panic(errorNotSupported) }
 func (*TestQueue) getConsumers() ([]string, error)     { panic(errorNotSupported) }
+func (*TestQueue) PublishEX(expiration time.Duration, payload ...string) error {
+	panic(errorNotSupported)
+}
 
 // test helper
 

@@ -22,4 +22,5 @@ type RedisClient interface {
 
 	// special
 	FlushDb() error
+	Expire(key string, expiration time.Duration) (bool, error)
 }

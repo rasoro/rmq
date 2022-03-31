@@ -176,6 +176,27 @@ func TestQueueCommon(t *testing.T) {
 	assert.NoError(t, connection.StopHeartbeat())
 }
 
+func TestPublishEX(t *testing.T) {
+	connection, err := OpenConnection("queue-conn", "tcp", "localhost:6379", 1, nil)
+	assert.NoError(t, err)
+	require.NotNil(t, connection)
+
+	queue, err := connection.OpenQueue("queue-q")
+	assert.NoError(t, err)
+	require.NotNil(t, queue)
+	_, err = queue.PurgeReady()
+	assert.NoError(t, err)
+	eventuallyReady(t, queue, 0)
+	assert.NoError(t, queue.Publish("queue-d1"))
+	eventuallyReady(t, queue, 1)
+	assert.NoError(t, queue.PublishEX(2*time.Second, "queue-d2"))
+	eventuallyReady(t, queue, 2)
+	time.Sleep(time.Second * 3)
+	count, err := queue.PurgeReady()
+	eventuallyReady(t, queue, 0)
+	assert.Equal(t, int64(0), count)
+}
+
 func TestConsumerCommon(t *testing.T) {
 	connection, err := OpenConnection("cons-conn", "tcp", "localhost:6379", 1, nil)
 	assert.NoError(t, err)
