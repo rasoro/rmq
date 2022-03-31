@@ -307,11 +307,11 @@ func TestMulti(t *testing.T) {
 	// Assert that eventually the ready count drops to 10 and unacked rises to 10
 	// TODO use the util funcs instead
 	assert.Eventually(t, func() bool {
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
-		unackedCount, err := queue.unackedCount()
+		unackedCount, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -333,11 +333,11 @@ func TestMulti(t *testing.T) {
 	// Assert that after the consumer acks a message the ready count drops to 9 and unacked remains at 10
 	// TODO use util funcs instead
 	assert.Eventually(t, func() bool {
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
-		unackedCount, err := queue.unackedCount()
+		unackedCount, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -353,11 +353,11 @@ func TestMulti(t *testing.T) {
 	// Assert that after the consumer acks a message the ready count drops to 8 and unacked remains at 10
 	// TODO use the util funcs instead
 	assert.Eventually(t, func() bool {
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
-		unackedCount, err := queue.unackedCount()
+		unackedCount, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -567,11 +567,11 @@ func TestStopConsuming_Consumer(t *testing.T) {
 
 	// make sure all deliveries are either ready, unacked or consumed (acked)
 	assert.Eventually(t, func() bool {
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
-		unackedCount, err := queue.unackedCount()
+		unackedCount, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -618,11 +618,11 @@ func TestStopConsuming_BatchConsumer(t *testing.T) {
 
 	// make sure all deliveries are either ready, unacked or consumed (acked)
 	assert.Eventually(t, func() bool {
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return false
 		}
-		unackedCount, err := queue.unackedCount()
+		unackedCount, err := queue.UnackedCount()
 		if err != nil {
 			return false
 		}
@@ -741,9 +741,9 @@ func BenchmarkQueue(b *testing.B) {
 
 	// wait until all are consumed
 	for {
-		ready, err := queue.readyCount()
+		ready, err := queue.ReadyCount()
 		assert.NoError(b, err)
-		unacked, err := queue.unackedCount()
+		unacked, err := queue.UnackedCount()
 		assert.NoError(b, err)
 		fmt.Printf("%d unacked %d %d\n", b.N, ready, unacked)
 		if ready == 0 && unacked == 0 {

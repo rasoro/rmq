@@ -44,9 +44,9 @@ func (*TestQueue) PurgeReady() (int64, error)          { panic(errorNotSupported
 func (*TestQueue) PurgeRejected() (int64, error)       { panic(errorNotSupported) }
 func (*TestQueue) Destroy() (int64, int64, error)      { panic(errorNotSupported) }
 func (*TestQueue) closeInStaleConnection() error       { panic(errorNotSupported) }
-func (*TestQueue) readyCount() (int64, error)          { panic(errorNotSupported) }
-func (*TestQueue) unackedCount() (int64, error)        { panic(errorNotSupported) }
-func (*TestQueue) rejectedCount() (int64, error)       { panic(errorNotSupported) }
+func (*TestQueue) ReadyCount() (int64, error)          { panic(errorNotSupported) }
+func (*TestQueue) UnackedCount() (int64, error)        { panic(errorNotSupported) }
+func (*TestQueue) RejectedCount() (int64, error)       { panic(errorNotSupported) }
 func (*TestQueue) getConsumers() ([]string, error)     { panic(errorNotSupported) }
 func (*TestQueue) PublishEX(expiration time.Duration, payload ...string) error {
 	panic(errorNotSupported)

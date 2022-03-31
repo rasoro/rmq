@@ -81,11 +81,11 @@ func CollectStats(queueList []string, mainConnection Connection) (Stats, error) 
 	stats := NewStats()
 	for _, queueName := range queueList {
 		queue := mainConnection.openQueue(queueName)
-		readyCount, err := queue.readyCount()
+		readyCount, err := queue.ReadyCount()
 		if err != nil {
 			return stats, err
 		}
-		rejectedCount, err := queue.rejectedCount()
+		rejectedCount, err := queue.RejectedCount()
 		if err != nil {
 			return stats, err
 		}
@@ -129,7 +129,7 @@ func CollectStats(queueList []string, mainConnection Connection) (Stats, error) 
 			if !ok {
 				continue
 			}
-			unackedCount, err := queue.unackedCount()
+			unackedCount, err := queue.UnackedCount()
 			if err != nil {
 				return stats, err
 			}
