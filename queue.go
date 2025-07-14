@@ -512,6 +512,7 @@ func (queue *redisQueue) closeInStaleConnection() error {
 	if count == 0 {
 		return ErrorNotFound
 	}
+	queue.redisClient.SRem(queuesKey, queue.name)
 
 	return nil
 }
