@@ -35,6 +35,13 @@ func (TestConnection) unlistAllQueues() error                { panic(errorNotSup
 func (TestConnection) openQueue(string) Queue                { panic(errorNotSupported) }
 func (TestConnection) flushDb() error                        { panic(errorNotSupported) }
 func (TestConnection) StopHeartbeat() error                  { panic(errorNotSupported) }
+func (TestConnection) getConsumingQueuesPaginated(uint64, int64) ([]string, uint64, error) {
+	panic(errorNotSupported)
+}
+func (TestConnection) getConnectionsPaginated(uint64, int64) ([]string, uint64, error) {
+	panic(errorNotSupported)
+}
+func (TestConnection) getConnectionsNonBlocking() ([]string, error) { panic(errorNotSupported) }
 
 // test helpers for test inspection and similar
 

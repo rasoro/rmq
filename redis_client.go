@@ -18,6 +18,7 @@ type RedisClient interface {
 	// sets
 	SAdd(key, value string) (total int64, err error)
 	SMembers(key string) (members []string, err error)
+	SScan(key string, cursor uint64, match string, count int64) (members []string, nextCursor uint64, err error)
 	SRem(key, value string) (affected int64, err error)
 
 	// special

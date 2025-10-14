@@ -32,9 +32,12 @@ type Connection interface {
 	// used in cleaner
 	checkHeartbeat() error
 	getConnections() ([]string, error)
+	getConnectionsNonBlocking() ([]string, error)
+	getConnectionsPaginated(cursor uint64, count int64) ([]string, uint64, error)
 	hijackConnection(name string) Connection
 	closeStaleConnection() error
 	getConsumingQueues() ([]string, error)
+	getConsumingQueuesPaginated(cursor uint64, count int64) ([]string, uint64, error)
 	// used for stats
 	openQueue(name string) Queue
 	// used in tests
@@ -240,6 +243,28 @@ func (connection *redisConnection) getConnections() ([]string, error) {
 	return connection.redisClient.SMembers(connectionsKey)
 }
 
+func (connection *redisConnection) getConnectionsPaginated(cursor uint64, count int64) ([]string, uint64, error) {
+	return connection.redisClient.SScan(connectionsKey, cursor, "", count)
+}
+
+func (connection *redisConnection) getConnectionsNonBlocking() ([]string, error) {
+	members := make([]string, 0)
+	nextCursor := uint64(0)
+	for {
+		membersPart := make([]string, 0)
+		var err error
+		membersPart, nextCursor, err = connection.redisClient.SScan(connectionsKey, nextCursor, "", 1000)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, membersPart...)
+		if nextCursor == 0 {
+			break
+		}
+	}
+	return members, nil
+}
+
 // hijackConnection reopens an existing connection for inspection purposes without starting a heartbeat
 func (connection *redisConnection) hijackConnection(name string) Connection {
 	return &redisConnection{
@@ -272,6 +297,11 @@ func (connection *redisConnection) closeStaleConnection() error {
 // getConsumingQueues returns a list of all queues consumed by this connection
 func (connection *redisConnection) getConsumingQueues() ([]string, error) {
 	return connection.redisClient.SMembers(connection.queuesKey)
+}
+
+// getConsumingQueuesPaginated returns a list of all queues consumed by this connection
+func (connection *redisConnection) getConsumingQueuesPaginated(cursor uint64, count int64) ([]string, uint64, error) {
+	return connection.redisClient.SScan(connection.queuesKey, cursor, "", count)
 }
 
 // openQueue opens a queue without adding it to the set of queues
