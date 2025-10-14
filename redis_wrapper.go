@@ -76,3 +76,7 @@ func (wrapper RedisWrapper) FlushDb() error {
 func (wrapper RedisWrapper) Expire(key string, expiration time.Duration) (bool, error) {
 	return wrapper.rawClient.Expire(unusedContext, key, expiration).Result()
 }
+
+func (wrapper RedisWrapper) SScan(key string, cursor uint64, match string, count int64) (members []string, nextCursor uint64, err error) {
+	return wrapper.rawClient.SScan(unusedContext, key, uint64(cursor), match, count).Result()
+}

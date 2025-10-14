@@ -1,6 +1,9 @@
 package rmq
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Cleaner struct {
 	connection Connection
@@ -79,5 +82,75 @@ func cleanQueue(queue Queue) (returned int64, err error) {
 		return 0, err
 	}
 	// log.Printf("rmq cleaner cleaned queue %s %d", queue, returned)
+	return returned, nil
+}
+
+// CleanInBatches is like Clean but it cleans the connection in batches. This is useful to avoid
+// blocking the main thread for too long. And it clean connections keys to avoid too many keys
+func (cleaner *Cleaner) CleanInBatches(pageCount int64) (int64, error) {
+	var cursor uint64
+	var returned int64
+	var err error
+	for {
+		var connectionNames []string
+		connectionNames, cursor, err = cleaner.connection.getConnectionsPaginated(cursor, pageCount)
+		if err != nil {
+			return returned, fmt.Errorf(
+				"error clean on getting connections paginated, cursor: %d, pageCount: %d, error: %w",
+				cursor, pageCount, err)
+		}
+		for _, connectionName := range connectionNames {
+			hijackedConnection := cleaner.connection.hijackConnection(connectionName)
+			switch err := hijackedConnection.checkHeartbeat(); err {
+			case nil: // active connection
+				continue
+			case ErrorNotFound:
+				n, err := cleanConnection(hijackedConnection, pageCount)
+				if err != nil {
+					return returned, err
+				}
+				returned += n
+			default:
+				return returned, err
+			}
+		}
+		if cursor == 0 {
+			break
+		}
+	}
+	return returned, nil
+}
+
+func cleanConnection(connection Connection, pageCount int64) (int64, error) {
+	var queueNames []string
+	var cursor uint64
+	var returned int64
+	var err error
+	for {
+		queueNames, cursor, err = connection.getConsumingQueuesPaginated(cursor, pageCount)
+		if err != nil {
+			return 0, err
+		}
+		for _, queueName := range queueNames {
+			queue, err := connection.OpenQueue(queueName)
+			if err != nil {
+				return 0, err
+			}
+			n, err := cleanQueue(queue)
+			if err != nil {
+				return 0, err
+			}
+			returned += n
+		}
+
+		if cursor == 0 {
+			break
+		}
+	}
+
+	if err := connection.closeStaleConnection(); err != nil {
+		return 0, err
+	}
+
 	return returned, nil
 }
