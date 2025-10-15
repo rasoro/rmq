@@ -90,13 +90,13 @@ func cleanQueue(queue Queue) (returned int64, err error) {
 // blocking the main thread for too long. And it clean connections keys to avoid too many keys
 func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError bool, logActive bool) (int64, error) {
 	var cursor uint64
-	var returned int64
+	var cleaned int64
 	var err error
 	for {
 		var connectionNames []string
 		connectionNames, cursor, err = cleaner.connection.getConnectionsPaginated(cursor, pageCount)
 		if err != nil {
-			return returned, fmt.Errorf(
+			return cleaned, fmt.Errorf(
 				"error clean on getting connections paginated, cursor: %d, pageCount: %d, error: %w",
 				cursor, pageCount, err)
 		}
@@ -107,20 +107,20 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 			case nil: // active connection
 				continue
 			case ErrorNotFound:
-				n, err := cleanConnection(hijackedConnection, pageCount)
+				_, err := cleanConnection(hijackedConnection, pageCount)
 				if err != nil {
 					if continueIfCleanError {
 						continue
 					}
-					return returned, fmt.Errorf("error on clean connection: %w", err)
+					return cleaned, fmt.Errorf("error on clean connection: %w", err)
 				}
-				returned += n
+				cleaned += 1
 				batchCleaned += 1
 			default:
 				if continueIfCleanError {
 					continue
 				}
-				return returned, fmt.Errorf("error on check heartbeat: %w", err)
+				return cleaned, fmt.Errorf("error on check heartbeat: %w", err)
 			}
 		}
 		if logActive {
@@ -130,7 +130,7 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 			break
 		}
 	}
-	return returned, nil
+	return cleaned, nil
 }
 
 func cleanConnection(connection Connection, pageCount int64) (int64, error) {
