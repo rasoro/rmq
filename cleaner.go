@@ -2,6 +2,7 @@ package rmq
 
 import (
 	"fmt"
+	"log"
 	"math"
 )
 
@@ -87,7 +88,7 @@ func cleanQueue(queue Queue) (returned int64, err error) {
 
 // CleanInBatches is like Clean but it cleans the connection in batches. This is useful to avoid
 // blocking the main thread for too long. And it clean connections keys to avoid too many keys
-func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError bool) (int64, error) {
+func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError bool, logActive bool) (int64, error) {
 	var cursor uint64
 	var returned int64
 	var err error
@@ -119,6 +120,9 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 				}
 				return returned, fmt.Errorf("error on check heartbeat: %w", err)
 			}
+		}
+		if logActive {
+			log.Printf("batch of connections cleaned %d", returned)
 		}
 		if cursor == 0 {
 			break
