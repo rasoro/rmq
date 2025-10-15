@@ -244,7 +244,7 @@ func (connection *redisConnection) getConnections() ([]string, error) {
 }
 
 func (connection *redisConnection) getConnectionsPaginated(cursor uint64, count int64) ([]string, uint64, error) {
-	return connection.redisClient.SScan(connectionsKey, cursor, "", count)
+	return connection.redisClient.SScan(connectionsKey, cursor, "*", count)
 }
 
 func (connection *redisConnection) getConnectionsNonBlocking() ([]string, error) {
