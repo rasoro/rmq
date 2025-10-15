@@ -87,7 +87,7 @@ func cleanQueue(queue Queue) (returned int64, err error) {
 
 // CleanInBatches is like Clean but it cleans the connection in batches. This is useful to avoid
 // blocking the main thread for too long. And it clean connections keys to avoid too many keys
-func (cleaner *Cleaner) CleanInBatches(pageCount int64) (int64, error) {
+func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError bool) (int64, error) {
 	var cursor uint64
 	var returned int64
 	var err error
@@ -107,11 +107,17 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64) (int64, error) {
 			case ErrorNotFound:
 				n, err := cleanConnection(hijackedConnection, pageCount)
 				if err != nil {
-					return returned, err
+					if continueIfCleanError {
+						continue
+					}
+					return returned, fmt.Errorf("error on clean connection: %w", err)
 				}
 				returned += n
 			default:
-				return returned, err
+				if continueIfCleanError {
+					continue
+				}
+				return returned, fmt.Errorf("error on check heartbeat: %w", err)
 			}
 		}
 		if cursor == 0 {
