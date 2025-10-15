@@ -100,6 +100,7 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 				"error clean on getting connections paginated, cursor: %d, pageCount: %d, error: %w",
 				cursor, pageCount, err)
 		}
+		batchCleaned := int64(0)
 		for _, connectionName := range connectionNames {
 			hijackedConnection := cleaner.connection.hijackConnection(connectionName)
 			switch err := hijackedConnection.checkHeartbeat(); err {
@@ -114,6 +115,7 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 					return returned, fmt.Errorf("error on clean connection: %w", err)
 				}
 				returned += n
+				batchCleaned += 1
 			default:
 				if continueIfCleanError {
 					continue
@@ -122,7 +124,7 @@ func (cleaner *Cleaner) CleanInBatches(pageCount int64, continueIfCleanError boo
 			}
 		}
 		if logActive {
-			log.Printf("batch of connections cleaned %d", returned)
+			log.Printf("batch of connections cleaned %d", batchCleaned)
 		}
 		if cursor == 0 {
 			break
